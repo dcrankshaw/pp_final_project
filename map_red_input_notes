@@ -1,0 +1,75 @@
+MAP-REDUCE Section:
+
+Round 1:
+Map <Filename, Line> --> <ParticleID, globalID> 	//globalID = (snap<<32 + fofID)
+Reduce: <particleID, edge> 		//edge is a pair of global IDs at adjacent timesteps
+
+Round 2:
+Map <particleID, edge> --> <edge, set(ParticleIDs)> //at this point set is a 1 member set
+Reduce <edge, set(ParticleIDs)>
+
+Round 3:
+Map <edge, set(ParticleIDs)> --> <source, set([weight, sink])>, <sink, set([weight, source])>
+Reduce <node, set([weight, vertex])>
+
+
+
+
+PHOEBUS Section
+
+-node value = number of particles in that group
+-probably don't need a trigger order (is this algorithm deterministic????)
+
+basic algo:
+
+if active:
+-every node has a parent (originally Null) as well as that parent's connecting edgeweight (originally 0)
+-find my biggest edge and call the node on the other side N (N is from one timestep before me)
+-check if my edge weight is bigger than N's current parent edge weight
+if I am bigger:
+	tell N -------> N will tell its former parent (if not null) that it needs to get a
+					new child
+	mark N as my child
+else:
+	put N in an disqualified list
+	repeat until I find a valid outgoing node or all my nodes have been disqualified
+if I have a child I can signal hold or inactive or whatever
+get reactivated if my child gets claimed by someone else
+
+issues:
+greedy algorithm
+decide if deterministic??? -->  if not deterministic, different runs could give
+								different results
+
+this situation:
+
+b --- 3 ---> c ---- 4 ---> e
+			/
+a ---- 4 -/
+|
+----- 3 ---> d ---- 8 ---> f
+
+where a will take c, but the path a-d-f yields a greater total weight than a-c-e )the path produced by the algorithm) can occur. Hopefully this is an unlikely situation because these are simulated physical FOF groups in space, and they are likely to merge
+through time, they probably won't randomly break off into a little group and a big group which is what the diagram conveys -------- NEED TO THINK ABOUT THIS EXPLANATION AND THE PHYSICAL UNLIKELINESS OF IT A LITTLE MORE ?????????????
+
+
+Interpreting output:
+
+The output of the algorithm will give me paths I can follow
+For each path I will aggregate*** all the particles contained in the path and sum the total weight of the path, then sort these paths in descending order by total weight
+
+From there I can create my new ordering, the same way as the individual path aggregation
+
+Finally, all the particles not on any paths get the remaining IDs
+
+
+***Path aggregation:
++ the n particles in the snap_63 group get ids 1-n (do I start at 0 or 1?)
++ the l particles in the snap_62 group that are not in snap_63 get ids n+1 thru n + l
++ etc.
+
+
+
+
+
+
