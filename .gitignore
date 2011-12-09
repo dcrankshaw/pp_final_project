@@ -1,0 +1,6 @@
+.DS_STORE
+src/Compute_Edges/bin
+*~
+input/
+phoebus/
+testing/
