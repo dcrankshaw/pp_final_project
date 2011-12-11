@@ -17,6 +17,54 @@ Reduce <node, set([weight, vertex])>
 
 PHOEBUS Section
 
+pythonish pseudocode for the function:
+
+def max_paths(Vertexname, VertexVal, Edgelist, InMsgs):
+	node state:
+
+		Snap = Node >>> 32
+		if Snap == 63:
+			if Node == -1:
+				find_biggest_edge
+				NewNode = "0:0" ++ biggest_edge_id
+				send message to biggest node
+				hold
+			else:
+				find biggest edge that's not in list of disqualified edges
+				NewNode = NewNode ++ ":" ++ newBiggestEdgeID
+				send message to biggest node
+				hold
+		
+		case InMsgs of
+			%%no updates
+			[] -> hold;
+			_ ->
+				%%Deal with case of updating my parent		
+				if any of the messages contains parent atom:
+					add all parents to possibilities list %%includes my current parent atom
+					for all invalid parents:
+						tell them to find someone else %%can send them a status atom
+					update VertexVal to new edge
+				%%Deal with case of picking biggest node
+
+		
+
+
+		current parent,
+		weight of edge to current parent,
+
+		vval = "par_id:weight:"
+		%%last item in ChildNodeList is currentChildNode (if -1 then no valid children)
+	VVal = [ParentNode:Weight:ChildNodeA:ChildNodeAWeight:...]
+	VValDefault = [-1:-1:-1:-1]
+
+	Message to claim a child: {int Node, String "ParentID:ParentID,EdgeWeight"}
+	Message to bad parent: {int Node, String "reject"}
+
+
+
+
+
 -node value = number of particles in that group
 -probably don't need a trigger order (is this algorithm deterministic????)
 
@@ -37,9 +85,10 @@ if I have a child I can signal hold or inactive or whatever
 get reactivated if my child gets claimed by someone else
 
 issues:
-greedy algorithm
-decide if deterministic??? -->  if not deterministic, different runs could give
+-greedy algorithm
+-decide if deterministic??? -->  if not deterministic, different runs could give
 								different results
+-also if a node in the middle of the graph (e.g. snapnum < 63) is never connected to, then it will never reach out to any of it's children
 
 this situation:
 
